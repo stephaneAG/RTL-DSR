@@ -24,6 +24,15 @@ sudo ldconfig
 sudo make install-udev-rules
 # R: to see which modules are currently loaded
 lsmod | head
+# R: to unload the necessary modules
+sudo rmmod dvb_usb_rtl28xxu rtl2832
+## TO TEST: permanently prevent modules loading ##
+# create a /etc/modprobe.d/no-rtl.conf file
+# add to it the following
+blacklist dvb_usb_rtl28xxu 
+blacklist rtl2832 
+blacklist rtl2830 
+
 
 # then, to test stuff out ;)
 rtl_test -t
