@@ -1,0 +1,38 @@
+# to add a new udev rule ( nb: to fix for me .. )
+sudo gedit /etc/udev/rules.d/20.rtlsdr.rules
+# add
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0bda", ATTRS{idProduct}=="2838", GROUP="adm", MODE="0666", SYMLINK+="rtl_sdr"
+# then, restart udev
+service udev restart
+# or
+/etc/init.d/udev restart
+
+# then, install gnuradio & gqrx, starting by adding their ppa
+sudo add-apt-repository ppa:gqrx/snapshots
+sudo apt-get update
+sudo apt-get install gqrx gnuradio
+
+# to install the rtl-drs stuff
+git clone git://git.osmocom.org/rtl-sdr.git
+cd rtl-sdr/
+mkdir build; cd build
+cmake ../ # or add "-DINSTALL_UDEV_RULES = ON"
+make
+sudo make install
+sudo ldconfig
+# if added the "-DINSTALL" stuff
+sudo make install-udev-rules
+# R: to see which modules are currently loaded
+lsmod | head
+
+# then, to test stuff out ;)
+rtl_test -t
+# don't mind the E400 not found ;p
+
+# try listening to RTL
+rtl_fm -f 104.3M -s 200000 -r 48000 - | aplay -r 48k -f S16_LE
+# use gqrx to visualize stuff
+gqrx
+
+# prevent the "no input devices" baudline error
+parec --format=s16le --channels=1 --latency-msec=5 | ./baudline -stdin
